@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurador de Currículo - Alexandre Kranz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h2 id="titulo-sessao">Dados Pessoais</h2>
+        <div class="progress-bar"><div id="progress" class="progress-fill" style="width: 25%;"></div></div>
+    </header>
+    
+    <div id="secao-pessoal" class="step-section active">
+        <div class="import-container">
+            <label for="import-json" class="btn btn-secondary" style="display: inline-block; cursor: pointer;">
+                📂 Importar JSON Existente
+            </label>
+            <input type="file" id="import-json" accept=".json" style="display: none;" onchange="importarDados(event)">
+        </div>
+
+        <div class="field-group">
+            <label>Nome Completo</label>
+            <input type="text" id="nome" placeholder="Ex: Alexandre Henrique Kranz">
+        </div>
+        <div class="field-group">
+            <label>Título Profissional</label>
+            <input type="text" id="titulo-prof" placeholder="Ex: Engenheiro de Software | Progress OpenEdge">
+        </div>
+        <div class="row">
+            <div class="input-group">
+                <label>E-mail</label>
+                <input type="email" id="email" placeholder="seu@email.com">
+            </div>
+            <div class="input-group">
+                <label>Contato</label>
+                <input type="text" id="telefone" placeholder="(41) 99999-9999">
+            </div>
+        </div>
+        <div class="field-group">
+            <label>Resumo Profissional (Até 1200 caracteres)</label>
+            <textarea id="resumo" maxlength="1200" rows="6" oninput="atualizarContador()"></textarea>
+            <div id="contador" class="char-count">0 / 1200</div>
+        </div>
+        <div class="navigation-btns center">
+            <button class="btn btn-primary btn-wide" onclick="irPara('experiencia')">Próximo: Experiências</button>
+        </div>
+    </div>
+
+    <div id="secao-experiencia" class="step-section">
+        <div id="lista-exp" class="list-container"></div>
+        <button class="btn btn-success" onclick="abrirModal('modal-exp', null, 'experiencia')">+ Adicionar Experiência</button>
+        <div class="navigation-btns center">
+            <button class="btn btn-secondary" onclick="voltarPara('pessoal')">Voltar</button>
+            <button class="btn btn-primary" onclick="irPara('formacao')">Próximo: Formação</button>
+        </div>
+    </div>
+
+    <div id="secao-formacao" class="step-section">
+        <div id="lista-form" class="list-container"></div>
+        <button class="btn btn-success" onclick="abrirModal('modal-form', null, 'formacao')">+ Adicionar Formação</button>
+        <div class="navigation-btns center">
+            <button class="btn btn-secondary" onclick="voltarPara('experiencia')">Voltar</button>
+            <button class="btn btn-primary" onclick="irPara('certificacoes')">Próximo: Certificações</button>
+        </div>
+    </div>
+
+    <div id="secao-certificacoes" class="step-section">
+        <div id="lista-cert" class="list-container"></div>
+        <button class="btn btn-success" onclick="abrirModal('modal-cert', null, 'certificacoes')">+ Adicionar Certificado</button>
+        <div class="navigation-btns center">
+            <button class="btn btn-secondary" onclick="voltarPara('formacao')">Voltar</button>
+            <button class="btn btn-primary" onclick="finalizar()">Finalizar e Gerar JSON</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-exp" class="modal">
+    <div class="modal-content">
+        <h3>Experiência Profissional</h3>
+        <input type="hidden" id="exp-index">
+        <input type="text" id="exp-empresa" placeholder="Empresa">
+        <input type="text" id="exp-cargo" placeholder="Cargo">
+        <div class="row">
+            <div class="input-group"><label>Início</label><input type="month" id="exp-inicio"></div>
+            <div class="input-group"><label>Fim (Vazio = Atual)</label><input type="month" id="exp-fim"></div>
+        </div>
+        <textarea id="exp-desc" placeholder="Descrição..."></textarea>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="fecharModal('modal-exp')">Cancelar</button>
+            <button class="btn btn-primary" onclick="salvarItem('experiencia')">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-form" class="modal">
+    <div class="modal-content">
+        <h3>Formação Acadêmica</h3>
+        <input type="hidden" id="form-index">
+        <div class="field-group">
+            <label>Título da Formação</label>
+            <select id="form-titulo-tipo">
+                <option value="Graduação">Graduação</option>
+                <option value="Pós-graduação">Pós-graduação</option>
+                <option value="Mestrado">Mestrado</option>
+                <option value="Doutorado">Doutorado</option>
+                <option value="Técnico">Técnico</option>
+            </select>
+        </div>
+        <input type="text" id="form-inst" placeholder="Instituição">
+        <input type="text" id="form-area" placeholder="Área de Estudo">
+        <div class="row">
+            <div class="input-group"><label>Início</label><input type="month" id="form-inicio"></div>
+            <div class="input-group"><label>Fim</label><input type="month" id="form-fim"></div>
+        </div>
+        <input type="text" id="form-comp" placeholder="Competências (até 5, por vírgula)">
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="fecharModal('modal-form')">Cancelar</button>
+            <button class="btn btn-primary" onclick="salvarItem('formacao')">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<div id="modal-cert" class="modal">
+    <div class="modal-content">
+        <h3>Certificação</h3>
+        <input type="hidden" id="cert-index">
+        <input type="text" id="cert-nome" placeholder="Nome da Certificação">
+        <input type="text" id="cert-org" placeholder="Emissor">
+        <div class="row">
+            <div class="input-group"><label>Emissão</label><input type="date" id="cert-data"></div>
+        </div>
+        <input type="text" id="cert-codigo" placeholder="Código">
+        <input type="url" id="cert-url" placeholder="URL">
+        <input type="text" id="cert-comp" placeholder="Competências (até 5, por vírgula)">
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="fecharModal('modal-cert')">Cancelar</button>
+            <button class="btn btn-primary" onclick="salvarItem('certificacoes')">Salvar</button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
